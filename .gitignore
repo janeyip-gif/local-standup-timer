@@ -1,4 +1,20 @@
+# Build artifacts
 .build/
 StandupTimer.app/
-.DS_Store
 AppIcon.iconset/
+
+# macOS
+.DS_Store
+._*
+
+# Xcode (if ever opened)
+*.xcodeproj/
+*.xcworkspace/
+xcuserdata/
+
+# Sensitive / environment
+.env
+*.pem
+*.key
+*.p12
+*.mobileprovision

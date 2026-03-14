@@ -622,7 +622,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
 
     private func startSnoozeTimer() {
         snoozeTimer?.invalidate()
-        snoozeTimer = Timer.scheduledTimer(withTimeInterval: 30 * 60, repeats: true) { [weak self] _ in
+        snoozeTimer = Timer.scheduledTimer(withTimeInterval: 5 * 60, repeats: true) { [weak self] _ in
             self?.sendFunNotification()
         }
     }
@@ -742,7 +742,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
         willPresent notification: UNNotification,
         withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
     ) {
-        completionHandler([.banner])
+        completionHandler([.banner, .list])
     }
 
     // MARK: - Sleep/Wake
@@ -763,7 +763,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
     }
 
     @objc private func handleWake() {
-        UNUserNotificationCenter.current().removeAllDeliveredNotifications()
         resetTimer()
     }
 

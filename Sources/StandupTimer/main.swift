@@ -599,7 +599,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
 
     private func updateCountdownDisplay() {
         let remaining = Int(targetDate.timeIntervalSinceNow)
-        if remaining > 0 {
+        if remaining > 60 {
+            // Shouldn't be in countdown mode yet — switch back to coarse
+            countdownTimer?.invalidate()
+            countdownTimer = nil
+            startCoarseTimer()
+        } else if remaining > 0 {
             showText(String(format: "0:%02d", remaining))
         } else if !isOverdue {
             countdownTimer?.invalidate()
@@ -650,10 +655,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
         }
     }
 
+    private let funTitles = [
+        "Time to stand up! 🧍",
+        "Stretch break! 🐱",
+        "Up up up! 🚀",
+        "Hey you! Stand! 👆",
+        "Stretch o'clock! ⏰",
+        "Rise and shine! ☀️",
+        "Standup time! 🎯",
+        "Move it! 💪",
+    ]
+
     private func sendFunNotification() {
         let message = pickRandomMessage()
         let content = UNMutableNotificationContent()
-        content.title = "Time to stand up! 🧍"
+        content.title = funTitles.randomElement() ?? "Time to stand up! 🧍"
         content.body = message.text
         content.sound = nil
         content.categoryIdentifier = "STANDUP_CATEGORY"
@@ -687,13 +703,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
     }
 
     private func pickRandomMessage() -> FunMessage {
-        var index: Int
-        repeat {
+        // Build a list of indices we haven't used recently
+        let available = (0..<funMessages.count).filter { !recentMessageIndices.contains($0) }
+        let index: Int
+        if available.isEmpty {
+            // All used recently — clear history and pick any
+            recentMessageIndices.removeAll()
             index = Int.random(in: 0..<funMessages.count)
-        } while recentMessageIndices.contains(index) && recentMessageIndices.count < funMessages.count
-
+        } else {
+            index = available.randomElement()!
+        }
         recentMessageIndices.append(index)
-        if recentMessageIndices.count > 5 {
+        // Keep history to half the total so we cycle through all messages
+        if recentMessageIndices.count > funMessages.count / 2 {
             recentMessageIndices.removeFirst()
         }
         return funMessages[index]
